@@ -1,7 +1,12 @@
 import math
 import solution as sol
 import point
-import matplotlib.pyplot as plt
+
+def add(graph, key1, key2, item):
+    if key1 in graph:
+        graph[key1][key2] = item
+    else:
+        graph[key1] = {key2 : item}
 
 def naive(inst):
     depot1 = inst.v0
@@ -12,15 +17,14 @@ def naive(inst):
     while(unvisited):
         last = depot1
         clients = 0
-        while(unvisited and clients <= inst.q):
-            curr = min(unvisited, key = last.euclidDistance2)
-            y[last, curr] = inst.q - clients
-            y[curr, last] = clients
+        while(unvisited and clients < inst.q):
+            curr = min(unvisited, key = last.euclidDistance)
+            add(y, last, curr, inst.q - clients)
+            add(y, curr, last, clients)
             z[curr] = curr
             clients += 1
             unvisited.remove(curr)
             last = curr
-        y[last, depot2] = inst.q - clients
-        y[depot2, last] = clients
-    print(len(y))
-    return sol.Solution({}, y, z)
+        add(y, last, depot2, inst.q - clients)
+        add(y, depot2, last, clients)
+    return sol.Solution({}, y, z, inst)
