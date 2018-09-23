@@ -1,13 +1,22 @@
 import matplotlib.pyplot as plt
 
-def graphInstance(instance):
-    plt.scatter(instance.v0.x, instance.v0.y, marker="s")
-    x,y = zip(*list(map(lambda i: (i.x, i.y), instance.u)))
-    plt.scatter(x, y, marker="o")
-    x,y = zip(*list(map(lambda i: (i.x, i.y), instance.w)))
-    plt.scatter(x, y, marker="^")
+def graphInstance(instance, axs):
+    axs.scatter(instance.v0.x, instance.v0.y, marker="s", label = "Depot")
+    if instance.U:
+        x,y = zip(*list(map(lambda i: (i.x, i.y), instance.U)))
+        axs.scatter(x, y, marker="o", label = "Users")
+    if instance.W:
+        x,y = zip(*list(map(lambda i: (i.x, i.y), instance.W)))
+        axs.scatter(x, y, marker="^", label = "Steiner nodes")
 
-def graphSolution(solution):
+def graphSolution(solution, axs):
+    title = "|U| = " + str(len(solution.U)) + \
+            ", |W| = " + str(len(solution.W)) + \
+            ", m = " + str(solution.m) + \
+            ", q = " + str(solution.q) + \
+            ", cost = " + str(round(solution.cost(), 2))
+    axs.set_title(title)
+    graphInstance(solution, axs)
     s = [solution.v0]
     vis = set()
     color = 'bgrcmyk'
@@ -19,9 +28,18 @@ def graphSolution(solution):
             continue
         vis.add(u)
         for v, w in solution.y[u].items():
-            plt.plot([u.x, v.x], [u.y, v.y],
+            axs.plot([u.x, v.x], [u.y, v.y],
                      color=color[c%len(color)], linestyle='-')
             if v in vis and v.id != 0:
                 continue
             s.append(v)
             vis.add(v)
+
+def graphSolutions(solutions):
+    fig, axs = plt.subplots(len(solutions), len(solutions[0]))
+    for i in range(len(solutions)):
+        for j in range(len(solutions[0])):
+            graphSolution(solutions[i][j], axs[i][j])
+    handles, labels = axs[0][0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper left')
+    plt.show()
