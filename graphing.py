@@ -14,7 +14,7 @@ def graphSolution(solution, axs):
             ", |W| = " + str(len(solution.W)) + \
             ", m = " + str(solution.m) + \
             ", q = " + str(solution.q) + \
-            ", cost = " + str(round(solution.cost(), 2))
+            ", cost = " + str(round(solution.cost(), 1))
     axs.set_title(title)
     graphInstance(solution, axs)
     s = [solution.v0]
@@ -34,6 +34,17 @@ def graphSolution(solution, axs):
                 continue
             s.append(v)
             vis.add(v)
+
+def toLaTeX(solutions):
+    for i in solutions:
+        for solution in i:
+            table = str(len(solution.U)+len(solution.W)) + \
+            " & " + str(len(solution.U)) + \
+            " & " + str(len(solution.W)) + \
+            " & " + str(solution.m) + \
+            " & " + str(solution.q) + \
+            " & " + str(round(solution.cost(), 1)) + " & \\\\"
+            print(table)
 
 def graphSolutions(solutions):
     fig, axs = plt.subplots(len(solutions), len(solutions[0]))
