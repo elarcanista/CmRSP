@@ -10,8 +10,8 @@ def add(graph, key1, key2, item):
 
 def naive(inst):
     depot1 = inst.v0
-    depot2 = inst.v[0]
-    unvisited = set(inst.u)
+    depot2 = inst.V[0]
+    unvisited = set(inst.U)
     y = dict()
     z = dict()
     while(unvisited):

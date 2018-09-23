@@ -1,12 +1,16 @@
 import sys
 import parser
+import matplotlib.pyplot as plt
+import testing as test
 import instance as inst
-import constructives as cons
 import solution as sol
+import constructives as cons
+import graphing as graph
 
 if __name__ == "__main__":
     for arg in sys.argv[1:]:
         nodes = parser.read(arg)
-        test = inst.genTest(nodes, 0.75, 3, 14)
-        sol = cons.naive(test)
-        print(sol.cost())
+        tests = test.testCases(nodes, [0.25, 0.5, 0.75, 1], [3, 4, 5], 0.9)
+        sol = map(lambda x: map(cons.naive, x), tests)
+        sol = list(map(list, sol))
+        graph.graphSolutions(sol)
