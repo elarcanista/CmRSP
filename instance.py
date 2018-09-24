@@ -10,7 +10,8 @@ class Instance:
         self.q = q
         self.V = {i.id: i for i in (u+w)}
         self.V[0] = point.Point(0, v0.x, v0.y)
-        self.V[self.size()] = v0
+        self.n = v0.id-1
+        self.V[self.n+1] = v0
 
     def __str__(self):
         return "{m = " + str(self.m) + \
@@ -19,6 +20,3 @@ class Instance:
                  ", u = " + str(self.u) + \
                  ", Steiner nodes = " + str(self.w) + \
                  "}"
-
-    def size(self):
-        return len(self.U) + len(self.W) + 1

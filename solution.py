@@ -22,6 +22,7 @@ class Solution:
         c = 0
         for u, d in self.y.items():
             for v, w in d.items():
+                print(u,v)
                 c += u.euclidDistance(v)*(w + self.y[v][u])
         c /= (self.q*2)
         for u, v in self.z.items():

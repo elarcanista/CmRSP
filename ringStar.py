@@ -5,13 +5,17 @@ import testing as test
 import instance as inst
 import solution as sol
 import constructives as cons
+import lpSolution as lp
 import graphing as graph
 
 if __name__ == "__main__":
     for arg in sys.argv[1:]:
         nodes = parser.read(arg)
-        tests = test.testCases(nodes, [0.25, 0.5, 0.75, 1], [3, 4, 5], 0.9)
-        sol = map(lambda x: map(lambda y:cons.naive(y,1,10), x), tests)
+        alpha = [0.25]
+        m = [2]
+        tests = test.testCases(nodes, alpha, m, 0.9)
+        #sol = map(lambda x: map(lambda y:cons.naive(y,1,0), x), tests)
+        sol = map(lambda x: map(lp.solve, x), tests)
         sol = list(map(list, sol))
         graph.graphSolutions(sol)
-        graph.toLaTeX(sol)
+        #graph.toLaTeX(sol)

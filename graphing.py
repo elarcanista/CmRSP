@@ -34,6 +34,8 @@ def graphSolution(solution, axs):
                 continue
             s.append(v)
             vis.add(v)
+    for u, v in solution.z.items():
+        axs.plot([u.x, v.x], [u.y, v.y], linestyle='--')
 
 def toLaTeX(solutions):
     for i in solutions:
@@ -50,7 +52,19 @@ def graphSolutions(solutions):
     fig, axs = plt.subplots(len(solutions), len(solutions[0]))
     for i in range(len(solutions)):
         for j in range(len(solutions[0])):
-            graphSolution(solutions[i][j], axs[i][j])
-    handles, labels = axs[0][0].get_legend_handles_labels()
+            try:
+                graphSolution(solutions[i][j], axs[i][j])
+            except TypeError:
+                try:
+                    graphSolution(solutions[i][j], axs[i])
+                except TypeError:
+                    graphSolution(solutions[i][j], axs)
+    try:
+        handles, labels = axs[0][0].get_legend_handles_labels()
+    except TypeError:
+        try:
+            handles, labels = axs[0].get_legend_handles_labels()
+        except TypeError:
+            handles, labels = axs.get_legend_handles_labels()
     fig.legend(handles, labels, loc='upper left')
     plt.show()
