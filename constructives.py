@@ -32,4 +32,4 @@ def naive(inst, kth = 1, noiseV = 0):
             last = curr
         add(y, last, depot2, inst.q - clients)
         add(y, depot2, last, clients)
-    return sol.Solution({}, y, z, inst)
+    return sol.Solution(set(), y, z, inst)
