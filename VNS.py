@@ -2,6 +2,7 @@ import math
 import solution
 import constructives as cons
 import random
+import copy as copy
 
 def isSource(point, sol):
     return point.id == 0 or point.id == sol.n +1
@@ -46,6 +47,8 @@ def swap2(sol, u1, u2, u3, v):
     sol.z[u1] = v
     sol.w.add(v)
 
+
+#{(u2,u1),(u1,u3),(u3,u4)} to {(u2,u3),(u1,u3),(u1,u4)}
 def swap3(sol, u1, u2, u3, u4):
     wu12 = sol.y[u1][u2]
     wu21 = sol.y[u2][u1]
@@ -60,6 +63,32 @@ def swap3(sol, u1, u2, u3, u4):
     add(sol.y, u4, u1, wu43)
     add(sol.y, u1, u4, wu34)
 
+#{(u2,u1),(u3,u1),(v2,v1),(v3,v1)} to {(u2,v1),(u3,v1),(v2,u1),(v3,u1)}
+def swap4(sol, u1, u2, u3, v1, v2, v3):
+    wu12 = sol.y[u1][u2]
+    wu21 = sol.y[u2][u1]
+    wu13 = sol.y[u1][u3]
+    wu31 = sol.y[u3][u1]
+    wv12 = sol.y[v1][v2]
+    wv21 = sol.y[v2][v1]
+    wv13 = sol.y[v1][v3]
+    wv31 = sol.y[v3][v1]
+    sol.y[u1].pop(u2, None)
+    sol.y[u2].pop(u1, None)
+    sol.y[u1].pop(u3, None)
+    sol.y[u3].pop(u1, None)
+    sol.y[v1].pop(v2, None)
+    sol.y[v2].pop(v1, None)
+    sol.y[v1].pop(v3, None)
+    sol.y[v3].pop(v1, None)
+    add(sol.y, u2, v1, wu21)
+    add(sol.y, v1, u2, wu12)
+    add(sol.y, u3, v1, wu31)
+    add(sol.y, v1, u3, wu13)
+    add(sol.y, v2, u1, wv21)
+    add(sol.y, u1, v2, wv12)
+    add(sol.y, v3, u1, wv31)
+    add(sol.y, u1, v3, wv13)
 
 def localSearchZ3(sol):
     solp = sol.cost()
@@ -107,20 +136,40 @@ def localSearchZ3(sol):
 
 def changeNeighbourhood(sol):
     u1 = random.choice(list(sol.y))
-    while isSource(u1, sol):
+    v1 = random.choice(list(sol.y))
+    while isSource(u1, sol) or isSource(v1, sol):
         u1 = random.choice(list(sol.y))
-    print(u1)
+        v1 = random.choice(list(sol.y))
+    sU = sum([sol.y[u][u1] - sol.y[u1][u] for u in sol.y[u1]])/2
+    sV = sum([sol.y[v][v1] - sol.y[v1][v] for v in sol.y[v1]])/2
     u2, u3 = [u for u in sol.y[u1]]
     u4 = ""
-    if isSource(u2, sol):
-        if not isSource(u3, sol):
-            v2, v3 = [v for v in sol.y[u3]]
-            u4 = v3 if v2 == u1 else v2
-            swap3(sol,u1,u2,u3,u4)
-    else:
+    if u3 == v1:
+        v2, v3 = [v for v in sol.y[u3]]
+        u4 = v3 if v2 == u1 else v2
+        swap3(sol,u1,u2,u3,u4)
+    elif u2 == v1:
         v2, v3 = [v for v in sol.y[u2]]
         u4 = v3 if v2 == u1 else v2
         swap3(sol,u1,u3,u2,u4)
-    print(u1, u2, u3, u4)
-
+    elif sU == sV:
+        v2, v3 = [u for u in sol.y[v1]]
+        swap4(sol,u1,u2,u3,v1,v2,v3)
     return sol
+
+def VNS(p,it):
+    seed = cons.naive(p,1,0)
+    best = localSearchZ3(copy.deepcopy(seed))
+    c = 0
+    while c < it:
+        newS = localSearchZ3(changeNeighbourhood(copy.deepcopy(best)))
+        newS2 = localSearchZ3(changeNeighbourhood(copy.deepcopy(seed)))
+        if best.cost() > newS.cost():
+            best = newS
+            c = 0
+        elif best.cost() > newS2.cost():
+            best = newS2
+            c = 0
+        else:
+            c += 1
+    return best
