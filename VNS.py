@@ -1,5 +1,7 @@
 import math
 import solution
+import constructives as cons
+import random
 
 def isSource(point, sol):
     return point.id == 0 or point.id == sol.n +1
@@ -16,12 +18,13 @@ def swap(sol, u1, u2, u3):
     w21 = sol.y[u2][u1]
     w13 = sol.y[u1][u3]
     w31 = sol.y[u3][u1]
+    add(sol.y, u2, u3, w21)
+    add(sol.y, u3, u2, w12)
     del sol.y[u1][u2]
     del sol.y[u2][u1]
     del sol.y[u1][u3]
     del sol.y[u3][u1]
-    add(sol.y, u2, u3, w21)
-    add(sol.y, u3, u2, w12)
+    del sol.y[u1]
     sol.z[u1] = u3
     sol.z2.add(u3)
 
@@ -31,16 +34,32 @@ def swap2(sol, u1, u2, u3, v):
     w21 = sol.y[u2][u1]
     w13 = sol.y[u1][u3]
     w31 = sol.y[u3][u1]
-    del sol.y[u1][u2]
-    del sol.y[u2][u1]
-    del sol.y[u1][u3]
-    del sol.y[u3][u1]
     add(sol.y, u2, v, w21)
     add(sol.y, v, u2, w12)
     add(sol.y, u3, v, w31)
     add(sol.y, v, u3, w13)
+    del sol.y[u1][u2]
+    del sol.y[u2][u1]
+    del sol.y[u1][u3]
+    del sol.y[u3][u1]
+    del sol.y[u1]
     sol.z[u1] = v
     sol.w.add(v)
+
+def swap3(sol, u1, u2, u3, u4):
+    wu12 = sol.y[u1][u2]
+    wu21 = sol.y[u2][u1]
+    wu34 = sol.y[u3][u4]
+    wu43 = sol.y[u4][u3]
+    sol.y[u1].pop(u2, None)
+    sol.y[u2].pop(u1, None)
+    add(sol.y, u2, u3, wu21)
+    add(sol.y, u3, u2, wu12)
+    sol.y[u3].pop(u4, None)
+    sol.y[u4].pop(u3, None)
+    add(sol.y, u4, u1, wu43)
+    add(sol.y, u1, u4, wu34)
+
 
 def localSearchZ3(sol):
     solp = sol.cost()
@@ -58,6 +77,8 @@ def localSearchZ3(sol):
             minV = u1
             W1 = math.inf
             for v in sol.W:
+                if v in sol.y:
+                    continue
                 if u1.euclidDistance(v) + u2.euclidDistance(v) + u3.euclidDistance(v) < W1:
                     W1 = u1.euclidDistance(v) + u2.euclidDistance(v) + u3.euclidDistance(v)
                     minV = v
@@ -83,3 +104,23 @@ def localSearchZ3(sol):
         if solp == sol.cost():
             return sol
         solp = sol.cost()
+
+def changeNeighbourhood(sol):
+    u1 = random.choice(list(sol.y))
+    while isSource(u1, sol):
+        u1 = random.choice(list(sol.y))
+    print(u1)
+    u2, u3 = [u for u in sol.y[u1]]
+    u4 = ""
+    if isSource(u2, sol):
+        if not isSource(u3, sol):
+            v2, v3 = [v for v in sol.y[u3]]
+            u4 = v3 if v2 == u1 else v2
+            swap3(sol,u1,u2,u3,u4)
+    else:
+        v2, v3 = [v for v in sol.y[u2]]
+        u4 = v3 if v2 == u1 else v2
+        swap3(sol,u1,u3,u2,u4)
+    print(u1, u2, u3, u4)
+
+    return sol
